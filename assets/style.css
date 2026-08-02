@@ -141,9 +141,14 @@ nav.hud-nav .rail{
   z-index:-1;
 }
 @media (max-width:900px){
-  nav.hud-nav{ top:auto; bottom:18px; right:50%; transform:translateX(50%); flex-direction:row; gap:16px; }
-  nav.hud-nav .label{ display:none; }
+  nav.hud-nav{
+    top:auto; bottom:14px; right:50%; transform:translateX(50%);
+    flex-direction:row; gap:0; background:var(--panel); border:1px solid var(--line);
+    padding:10px 6px;
+  }
   nav.hud-nav .rail{ display:none; }
+  nav.hud-nav .item{ flex-direction:column; align-items:center; gap:6px; padding:0 10px; }
+  nav.hud-nav .item .label{ opacity:1; transform:none; font-size:8.5px; }
 }
 
 .brand-mark{
@@ -374,6 +379,31 @@ footer{
   border-top:1px solid var(--line-soft);
 }
 @media (max-width:900px){ footer{ padding:34px 6vw 90px; } }
+
+.chat-fab{
+  position:fixed; bottom:28px; right:28px; z-index:80;
+  width:56px; height:56px; border:1px solid var(--cyan); background:var(--panel);
+  display:flex; align-items:center; justify-content:center; font-size:24px; line-height:1;
+  transition:.25s;
+  clip-path:polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+.chat-fab::after{
+  content:''; position:absolute; inset:-6px; border:1px solid var(--cyan-dim);
+  clip-path:inherit; opacity:.6; animation:fabPulse 2.4s ease-out infinite; pointer-events:none;
+}
+@keyframes fabPulse{ 0%{ transform:scale(1); opacity:.6; } 100%{ transform:scale(1.35); opacity:0; } }
+.chat-fab:hover{ background:var(--cyan); }
+.chat-fab .fab-tip{
+  position:absolute; right:68px; top:50%; transform:translateY(-50%) translateX(6px);
+  background:var(--panel-2); border:1px solid var(--line); color:var(--muted);
+  font-family:var(--mono); font-size:10px; letter-spacing:.08em; padding:8px 12px; white-space:nowrap;
+  opacity:0; pointer-events:none; transition:.2s;
+}
+.chat-fab:hover .fab-tip{ opacity:1; transform:translateY(-50%) translateX(0); }
+@media (max-width:900px){
+  .chat-fab{ bottom:92px; right:16px; width:50px; height:50px; font-size:19px; }
+  .chat-fab .fab-tip{ display:none; }
+}
 
 @media (prefers-reduced-motion: reduce){
   *{ animation-duration:0.001s !important; transition-duration:0.001s !important; }
