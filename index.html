@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VICTOR // SYSTEMS INTERFACE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg:        #080b10;
+    --panel:     #0e1420;
+    --panel-2:   #10182a;
+    --line:      #1c2a3a;
+    --line-soft: #14202e;
+    --cyan:      #3ddbd9;
+    --cyan-dim:  rgba(61,219,217,0.35);
+    --amber:     #ffb454;
+    --amber-dim: rgba(255,180,84,0.35);
+    --text:      #e8edf2;
+    --muted:     #64798c;
+    --muted-2:   #3d4d5c;
+    --danger:    #ff6a5f;
+    --mono: 'IBM Plex Mono', monospace;
+    --disp: 'Space Grotesk', sans-serif;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--disp);
+    overflow-x:hidden;
+    cursor:none;
+    position:relative;
+  }
+  @media (max-width:900px){ body{ cursor:auto; } }
+  ::selection{ background:var(--cyan); color:var(--bg); }
+
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; }
+
+  .grid-field{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:
+      linear-gradient(var(--line-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+    background-size: 42px 42px;
+    opacity:.35;
+    mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 75%);
+  }
+  .scanlines{
+    position:fixed; inset:0; z-index:2; pointer-events:none;
+    background:repeating-linear-gradient(
+      to bottom, rgba(255,255,255,0.018) 0px, rgba(255,255,255,0.018) 1px,
+      transparent 1px, transparent 3px
+    );
+    mix-blend-mode:overlay;
+  }
+  .vignette{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background: radial-gradient(ellipse at 50% 40%, transparent 40%, rgba(0,0,0,0.55) 100%);
+  }
+
+  .reticle{
+    position:fixed; top:0; left:0; width:34px; height:34px;
+    margin:-17px 0 0 -17px; pointer-events:none; z-index:999;
+    mix-blend-mode:screen;
+    transition:opacity .2s;
+  }
+  .reticle svg{ width:100%; height:100%; display:block; }
+  .reticle .ring{ stroke:var(--cyan); }
+  .reticle .cross{ stroke:var(--cyan); opacity:.7; }
+  .reticle.lock .ring{ stroke:var(--amber); }
+  .reticle.lock .cross{ stroke:var(--amber); }
+  @media (max-width:900px){ .reticle{ display:none; } }
+
+  #boot{
+    position:fixed; inset:0; z-index:1000; background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column; gap:18px;
+    font-family:var(--mono); color:var(--cyan);
+    transition:opacity .6s ease, visibility .6s ease;
+  }
+  #boot.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+  .boot-mark{ font-size:13px; letter-spacing:.35em; color:var(--muted); }
+  .boot-bar{ width:280px; height:2px; background:var(--line); position:relative; overflow:hidden; }
+  .boot-bar span{
+    position:absolute; left:0; top:0; bottom:0; width:0%;
+    background:linear-gradient(90deg, var(--cyan), var(--amber));
+    animation: bootfill 1.7s cubic-bezier(.6,0,.3,1) forwards;
+  }
+  @keyframes bootfill{ to{ width:100%; } }
+  .boot-log{ font-size:11px; color:var(--muted); letter-spacing:.05em; min-height:16px; }
+
+  .frame{
+    position:fixed; inset:14px; z-index:3; pointer-events:none;
+    border:1px solid var(--line);
+  }
+  .frame::before, .frame::after,
+  .frame .c2, .frame .c3{
+    content:''; position:absolute; width:16px; height:16px;
+    border:1px solid var(--cyan);
+  }
+  .frame::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
+  .frame::after{ top:-1px; right:-1px; border-left:none; border-bottom:none; }
+  .frame .c2{ bottom:-1px; left:-1px; border-right:none; border-top:none; }
+  .frame .c3{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
+
+  .topbar{
+    position:fixed; top:14px; left:14px; right:14px; z-index:20;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 26px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.12em; color:var(--muted);
+    pointer-events:none;
+  }
+  .topbar .id{ color:var(--cyan); }
+  .topbar .clock{ color:var(--text); }
+  .topbar span.dot{ color:var(--amber); }
+
+  nav.hud-nav{
+    position:fixed; top:50%; right:38px; transform:translateY(-50%);
+    z-index:50; display:flex; flex-direction:column; gap:22px;
+  }
+  nav.hud-nav .item{
+    display:flex; align-items:center; gap:10px; justify-content:flex-end;
+    font-family:var(--mono); font-size:11px; letter-spacing:.15em; color:var(--muted);
+    transition:color .25s;
+  }
+  nav.hud-nav .item .label{
+    opacity:0; transform:translateX(6px);
+    transition:opacity .25s, transform .25s;
+    white-space:nowrap;
+  }
+  nav.hud-nav .item:hover .label,
+  nav.hud-nav .item.active .label{ opacity:1; transform:translateX(0); }
+  nav.hud-nav .item .node{
+    width:8px; height:8px; border:1px solid var(--muted-2); border-radius:50%;
+    position:relative; transition:.25s;
+  }
+  nav.hud-nav .item.active .node,
+  nav.hud-nav .item:hover .node{
+    border-color:var(--cyan); background:var(--cyan);
+    box-shadow:0 0 10px var(--cyan);
+  }
+  nav.hud-nav .item.active{ color:var(--cyan); }
+  nav.hud-nav .rail{
+    position:absolute; right:3px; top:0; bottom:0; width:1px; background:var(--line);
+    z-index:-1;
+  }
+  @media (max-width:900px){
+    nav.hud-nav{ top:auto; bottom:18px; right:50%; transform:translateX(50%); flex-direction:row; gap:16px; }
+    nav.hud-nav .label{ display:none; }
+    nav.hud-nav .rail{ display:none; }
+  }
+
+  .brand-mark{
+    position:fixed; top:20px; left:38px; z-index:20;
+    font-family:var(--mono); font-size:12px; letter-spacing:.2em; color:var(--text);
+  }
+  .brand-mark b{ color:var(--cyan); font-weight:600; }
+
+  main{ position:relative; z-index:5; }
+
+  section{
+    min-height:100vh; padding:120px 14vw 100px;
+    display:flex; flex-direction:column; justify-content:center;
+    border-bottom:1px solid var(--line-soft);
+  }
+  @media (max-width:900px){ section{ padding:120px 6vw 80px; } }
+
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.3em; color:var(--amber);
+    display:flex; align-items:center; gap:10px; margin-bottom:22px;
+  }
+  .eyebrow::before{ content:''; width:22px; height:1px; background:var(--amber); }
+
+  #hero{ position:relative; }
+  .hero-grid{ display:grid; grid-template-columns:1.4fr .8fr; gap:60px; align-items:end; }
+  @media (max-width:900px){ .hero-grid{ grid-template-columns:1fr; } }
+
+  .hero-title{ font-size:clamp(46px, 7vw, 96px); line-height:.98; font-weight:700; letter-spacing:-.02em; }
+  .hero-title .accent{ color:var(--cyan); }
+  .hero-sub{ margin-top:26px; max-width:520px; color:var(--muted); font-size:16px; line-height:1.7; }
+  .hero-sub b{ color:var(--text); font-weight:500; }
+
+  .hero-readout{
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--muted);
+    border-left:1px solid var(--line); padding-left:22px; display:flex; flex-direction:column; gap:10px;
+  }
+  .hero-readout .row{ display:flex; justify-content:space-between; gap:16px; }
+  .hero-readout .row span:last-child{ color:var(--cyan); }
+  .hero-readout .row.ok span:last-child{ color:var(--amber); }
+
+  .hero-cta{ margin-top:44px; display:flex; gap:16px; flex-wrap:wrap; }
+  .btn{
+    font-family:var(--mono); font-size:11px; letter-spacing:.15em;
+    padding:14px 26px; border:1px solid var(--cyan); color:var(--cyan);
+    background:transparent; position:relative; overflow:hidden;
+    transition:color .25s;
+  }
+  .btn::before{
+    content:''; position:absolute; inset:0; background:var(--cyan);
+    transform:translateX(-101%); transition:transform .3s cubic-bezier(.7,0,.3,1); z-index:-1;
+  }
+  .btn:hover{ color:var(--bg); }
+  .btn:hover::before{ transform:translateX(0); }
+  .btn.ghost{ border-color:var(--line); color:var(--muted); }
+  .btn.ghost::before{ background:var(--muted-2); }
+  .btn.ghost:hover{ color:var(--bg); }
+
+  .panel{
+    position:relative; border:1px solid var(--line); background:var(--panel);
+    padding:34px;
+  }
+  .panel::before, .panel::after{
+    content:''; position:absolute; width:10px; height:10px; border:1px solid var(--line);
+    opacity:0; transition:opacity .25s, border-color .25s;
+  }
+  .panel::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
+  .panel::after{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
+  .panel:hover::before, .panel:hover::after{ opacity:1; border-color:var(--cyan); }
+
+  .section-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:52px; flex-wrap:wrap; gap:18px; }
+  .section-title{ font-size:clamp(30px,4vw,46px); font-weight:600; letter-spacing:-.01em; }
+  .section-note{ font-family:var(--mono); font-size:11px; color:var(--muted); max-width:280px; text-align:right; }
+  @media (max-width:700px){ .section-note{ text-align:left; } }
+
+  .diag-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:800px){ .diag-grid{ grid-template-columns:1fr; } }
+
+  .diag{ padding:22px 24px; }
+  .diag .top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; }
+  .diag .name{ font-family:var(--mono); font-size:13px; letter-spacing:.06em; }
+  .diag .pct{ font-family:var(--mono); font-size:12px; color:var(--cyan); }
+  .diag .track{ height:5px; background:var(--line); position:relative; overflow:hidden; }
+  .diag .fill{
+    position:absolute; inset:0; width:0%; background:linear-gradient(90deg,var(--cyan),var(--amber));
+    transition:width 1.4s cubic-bezier(.5,0,.2,1);
+  }
+  .diag .detail{ margin-top:12px; font-size:12.5px; color:var(--muted); line-height:1.6; }
+
+  .stack-strip{
+    margin-top:40px; display:flex; flex-wrap:wrap; gap:10px;
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:var(--muted-2);
+  }
+  .stack-strip span{ border:1px solid var(--line); padding:8px 14px; color:var(--muted); }
+
+  .log-list{ display:flex; flex-direction:column; gap:1px; border-top:1px solid var(--line); }
+  .log-entry{ border-bottom:1px solid var(--line); background:var(--panel); }
+  .log-head{
+    display:grid; grid-template-columns:70px 1fr 140px 110px 20px;
+    align-items:center; gap:18px; padding:22px 24px; cursor:pointer;
+    transition:background .2s;
+  }
+  .log-head:hover{ background:var(--panel-2); }
+  @media (max-width:800px){
+    .log-head{ grid-template-columns:50px 1fr 20px; }
+    .log-head .status, .log-head .stack-mini{ display:none; }
+  }
+  .log-idx{ font-family:var(--mono); font-size:11px; color:var(--muted-2); }
+  .log-name{ font-size:20px; font-weight:600; }
+  .log-name small{ display:block; font-family:var(--mono); font-weight:400; font-size:11px; color:var(--muted); letter-spacing:.08em; margin-top:4px; }
+  .status{ font-family:var(--mono); font-size:10px; letter-spacing:.12em; padding:6px 10px; text-align:center; border:1px solid; justify-self:start; }
+  .status.live{ color:var(--cyan); border-color:var(--cyan-dim); }
+  .status.active{ color:#8fe3a0; border-color:rgba(143,227,160,.35); }
+  .status.deployed{ color:var(--amber); border-color:var(--amber-dim); }
+  .status.dev{ color:var(--muted); border-color:var(--line); }
+  .status.paused{ color:var(--danger); border-color:rgba(255,106,95,.35); }
+  .stack-mini{ font-family:var(--mono); font-size:10px; color:var(--muted-2); }
+  .chev{ width:10px; height:10px; border-right:1px solid var(--muted); border-bottom:1px solid var(--muted); transform:rotate(45deg); transition:transform .3s; justify-self:center; }
+  .log-entry.open .chev{ transform:rotate(225deg); }
+
+  .log-body{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .log-body-inner{ padding:0 24px 30px; display:grid; grid-template-columns:1fr 240px; gap:36px; }
+  @media (max-width:700px){ .log-body-inner{ grid-template-columns:1fr; } }
+  .log-body p{ color:var(--muted); font-size:14px; line-height:1.75; }
+  .log-body p b{ color:var(--text); font-weight:500; }
+  .log-tags{ display:flex; flex-wrap:wrap; gap:8px; align-content:flex-start; }
+  .log-tags span{
+    font-family:var(--mono); font-size:10px; letter-spacing:.06em; color:var(--muted);
+    border:1px solid var(--line); padding:6px 10px;
+  }
+
+  .terminal{ font-family:var(--mono); max-width:680px; }
+  .terminal .head{
+    display:flex; justify-content:space-between; border-bottom:1px solid var(--line);
+    padding-bottom:14px; margin-bottom:20px; font-size:11px; color:var(--muted); letter-spacing:.1em;
+  }
+  .term-line{ font-size:13px; line-height:2.1; color:var(--muted); }
+  .term-line .prompt{ color:var(--cyan); margin-right:10px; }
+  .term-line .typed{ color:var(--text); border-right:2px solid var(--cyan); padding-right:2px; }
+  .term-line .typed.done{ border-right:none; }
+
+  .contact-primary{
+    margin-top:34px; display:flex; justify-content:space-between; align-items:center; gap:20px;
+    padding:20px 22px; border:1px solid var(--line); flex-wrap:wrap;
+  }
+  .addr-block{ display:flex; flex-direction:column; gap:6px; }
+  .addr-label{ font-size:10px; letter-spacing:.2em; color:var(--muted-2); }
+  .addr-value{ font-size:14px; color:var(--text); letter-spacing:.02em; }
+
+  .icon-btn{
+    margin-top:16px; display:inline-flex; align-items:center; gap:12px;
+    font-family:var(--mono); font-size:12px; letter-spacing:.12em;
+    padding:14px 22px; border:1px solid var(--line); color:var(--muted); transition:.25s;
+  }
+  .icon-btn svg{ flex-shrink:0; color:var(--cyan); }
+  .icon-btn:hover{ border-color:var(--cyan); color:var(--cyan); background:var(--panel-2); }
+
+  .log-body .view-live{
+    margin-top:18px; display:inline-block; font-family:var(--mono); font-size:11px; letter-spacing:.12em;
+    padding:12px 20px; border:1px solid var(--cyan); color:var(--cyan); transition:.25s;
+  }
+  .log-body .view-live:hover{ background:var(--cyan); color:var(--bg); }
+
+  .toast{
+    position:fixed; left:50%; bottom:34px; transform:translate(-50%, 14px);
+    background:var(--panel-2); border:1px solid var(--cyan-dim); color:var(--cyan);
+    font-family:var(--mono); font-size:11px; letter-spacing:.08em;
+    padding:12px 20px; z-index:1001; opacity:0; pointer-events:none;
+    transition:opacity .3s, transform .3s;
+  }
+  .toast.show{ opacity:1; transform:translate(-50%, 0); }
+
+  footer{
+    padding:34px 14vw; display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:var(--muted-2);
+  }
+  @media (max-width:900px){ footer{ padding:34px 6vw 90px; } }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001s !important; transition-duration:0.001s !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div id="boot">
+    <div class="boot-mark">V.SYS // INITIALIZING INTERFACE</div>
+    <div class="boot-bar"><span></span></div>
+    <div class="boot-log" id="bootLog">loading kernel…</div>
+  </div>
+
+  <div class="grid-field"></div>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="reticle" id="reticle">
+    <svg viewBox="0 0 34 34">
+      <circle class="ring" cx="17" cy="17" r="12" fill="none" stroke-width="1"/>
+      <line class="cross" x1="17" y1="0" x2="17" y2="8" stroke-width="1"/>
+      <line class="cross" x1="17" y1="26" x2="17" y2="34" stroke-width="1"/>
+      <line class="cross" x1="0" y1="17" x2="8" y2="17" stroke-width="1"/>
+      <line class="cross" x1="26" y1="17" x2="34" y2="17" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <div class="frame"><div class="c2"></div><div class="c3"></div></div>
+
+  <div class="brand-mark">V<b>·</b>SYS</div>
+
+  <div class="topbar">
+    <div>SESSION <span class="id">#VX-2026</span></div>
+    <div class="clock" id="clock">00:00:00</div>
+    <div>LAGOS, NG <span class="dot">●</span> ONLINE</div>
+  </div>
+
+  <nav class="hud-nav" id="hudNav">
+    <div class="rail"></div>
+    <a class="item active" href="#hero" data-target="hero"><span class="label">HOME</span><span class="node"></span></a>
+    <a class="item" href="#skills" data-target="skills"><span class="label">SYSTEM</span><span class="node"></span></a>
+    <a class="item" href="#projects" data-target="projects"><span class="label">LOGS</span><span class="node"></span></a>
+    <a class="item" href="#contact" data-target="contact"><span class="label">COMMS</span><span class="node"></span></a>
+  </nav>
+
+  <main>
+
+    <section id="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">UNIT PROFILE // 001</div>
+          <h1 class="hero-title">VICTOR<br><span class="accent">FULL&#8209;STACK</span> ENGINEER</h1>
+          <p class="hero-sub">
+            I design and build complete web systems solo — <b>interface, backend, and payments</b> — from a flat file
+            up to a multi-portal production app. No agency, no team, no template. Every project on this log was
+            planned, built, and shipped end-to-end by one operator.
+          </p>
+          <div class="hero-cta">
+            <a href="#projects" class="btn">VIEW MISSION LOGS</a>
+            <a href="#contact" class="btn ghost">OPEN CHANNEL</a>
+          </div>
+        </div>
+        <div class="hero-readout">
+          <div class="row"><span>OPERATOR</span><span>V. — SOLO BUILD</span></div>
+          <div class="row"><span>CORE STACK</span><span>JS / FIREBASE</span></div>
+          <div class="row ok"><span>PAYMENTS</span><span>FLUTTERWAVE</span></div>
+          <div class="row"><span>DEPLOY</span><span>VERCEL</span></div>
+          <div class="row"><span>ACTIVE LOGS</span><span id="logCount">06</span></div>
+          <div class="row ok"><span>STATUS</span><span>BUILDING</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">SYSTEM READOUT // 002</div>
+          <h2 class="section-title">Capability Diagnostics</h2>
+        </div>
+        <div class="section-note">Self-reported proficiency across the stack I use to take a project from empty file to deployed product.</div>
+      </div>
+
+      <div class="diag-grid">
+        <div class="panel diag" data-pct="96">
+          <div class="top"><span class="name">FRONTEND — HTML / CSS / JS</span><span class="pct">96%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Vanilla-first. No framework dependency unless the project genuinely needs one.</div>
+        </div>
+        <div class="panel diag" data-pct="92">
+          <div class="top"><span class="name">FIREBASE — AUTH / RTDB / FIRESTORE</span><span class="pct">92%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Primary backend across every shipped project — auth flows, real-time data, security rules.</div>
+        </div>
+        <div class="panel diag" data-pct="88">
+          <div class="top"><span class="name">PAYMENTS — FLUTTERWAVE</span><span class="pct">88%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Multi-currency checkout, wallets, and withdrawal-approval flows.</div>
+        </div>
+        <div class="panel diag" data-pct="85">
+          <div class="top"><span class="name">MEDIA — CLOUDINARY</span><span class="pct">85%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Upload pipelines, transformation, and delivery for image-heavy apps.</div>
+        </div>
+        <div class="panel diag" data-pct="90">
+          <div class="top"><span class="name">DEPLOYMENT — VERCEL</span><span class="pct">90%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Ship fast, iterate faster. Every live project on this page runs on it.</div>
+        </div>
+        <div class="panel diag" data-pct="68">
+          <div class="top"><span class="name">R&amp;D — MEDIAPIPE / WEB AUDIO</span><span class="pct">68%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Face-tracking avatars and real-time voice manipulation. Actively in progress.</div>
+        </div>
+      </div>
+
+      <div class="stack-strip">
+        <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>Firebase Auth</span>
+        <span>Realtime Database</span><span>Firestore</span><span>Cloudinary</span><span>Flutterwave</span>
+        <span>Vercel</span><span>MediaPipe</span><span>Web Audio API</span><span>Groq API</span>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">MISSION LOG // 003</div>
+          <h2 class="section-title">Deployed &amp; In Progress</h2>
+        </div>
+        <div class="section-note" id="logNote">Case files, pulled live. Not all of them succeeded on the first pass — the log stays honest either way.</div>
+      </div>
+
+      <div class="log-list" id="logList"></div>
+    </section>
+
+    <section id="contact">
+      <div class="eyebrow">COMMS TERMINAL // 004</div>
+      <h2 class="section-title" style="margin-bottom:36px;">Open a Channel</h2>
+
+      <div class="panel terminal">
+        <div class="head"><span>secure_channel.sh</span><span>ENCRYPTED</span></div>
+        <div class="term-line"><span class="prompt">&gt;</span><span class="typed" id="typeLine"></span></div>
+
+        <div class="contact-primary">
+          <div class="addr-block">
+            <span class="addr-label">EMAIL</span>
+            <span class="addr-value">viccylay30@gmail.com</span>
+          </div>
+          <a class="btn" href="mailto:viccylay30@gmail.com">CONTACT DIRECTLY</a>
+        </div>
+
+        <a class="icon-btn" href="https://www.linkedin.com/in/victor-adedolapo-b60767280?utm_source=share_via&amp;utm_content=profile&amp;utm_medium=member_ios" target="_blank" rel="noopener" aria-label="LinkedIn profile">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.86 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.26 2.37 4.26 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+          <span>LINKEDIN PROFILE</span>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <span>© 2026 VICTOR. BUILT FROM SCRATCH.</span>
+    <span>NO FRAMEWORK · NO TEMPLATE</span>
+  </footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: 'AIzaSyAAJlq7ybQzTQzYvnGn7C_JEPIFsBcRev4',
+    authDomain: 'myportfolio-82282.firebaseapp.com',
+    projectId: 'myportfolio-82282',
+    storageBucket: 'myportfolio-82282.firebasestorage.app',
+    messagingSenderId: '967654597340',
+    appId: '1:967654597340:web:ae77f7195de00ba9d24a19'
+  };
+  window.firebaseConfigured = !!firebaseConfig.apiKey;
+  if (window.firebaseConfigured) firebase.initializeApp(firebaseConfig);
+</script>
+<script>
+(() => {
+  'use strict';
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const boot = (() => {
+    const logs = ['loading kernel…', 'mounting interface…', 'calibrating reticle…', 'linking mission log…', 'ready.'];
+    const el = document.getElementById('bootLog');
+    const shell = document.getElementById('boot');
+    let i = 0;
+    const interval = setInterval(() => {
+      i += 1;
+      if (i < logs.length) el.textContent = logs[i];
+    }, 340);
+    const finish = () => {
+      shell.classList.add('hidden');
+      clearInterval(interval);
+    };
+    window.addEventListener('load', () => setTimeout(finish, prefersReducedMotion ? 200 : 1750));
+    return { finish };
+  })();
+
+  const clock = (() => {
+    const el = document.getElementById('clock');
+    const pad = n => String(n).padStart(2, '0');
+    const tick = () => {
+      const d = new Date();
+      el.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+    tick();
+    setInterval(tick, 1000);
+  })();
+
+  const reticle = (() => {
+    if (window.matchMedia('(max-width: 900px)').matches) return;
+    const el = document.getElementById('reticle');
+    let mx = window.innerWidth / 2, my = window.innerHeight / 2;
+    let rx = mx, ry = my;
+    let hovering = false;
+
+    window.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; }, { passive: true });
+    document.addEventListener('mouseover', e => {
+      hovering = !!e.target.closest('a, button, .log-head, .panel');
+      el.classList.toggle('lock', hovering);
+    });
+
+    const step = () => {
+      rx += (mx - rx) * 0.18;
+      ry += (my - ry) * 0.18;
+      el.style.transform = `translate(${rx}px, ${ry}px) scale(${hovering ? 1.4 : 1})`;
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  })();
+
+  const scrollSpy = (() => {
+    const navItems = document.querySelectorAll('.hud-nav .item');
+    const sections = document.querySelectorAll('main section');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navItems.forEach(n => n.classList.toggle('active', n.dataset.target === entry.target.id));
+        }
+      });
+    }, { threshold: 0.45 });
+    sections.forEach(s => observer.observe(s));
+  })();
+
+  const diagnostics = (() => {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.querySelector('.fill').style.width = `${entry.target.dataset.pct}%`;
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.4 });
+    document.querySelectorAll('.diag').forEach(d => observer.observe(d));
+  })();
+
+  const STATUS_LABELS = {
+    live: 'LIVE', active: 'ACTIVE', deployed: 'DEPLOYED', dev: 'IN DEV', paused: 'PAUSED'
+  };
+
+  const DEFAULT_PROJECTS = [
+    {
+      name: 'Atlantas', subtitle: 'Fintech ecosystem — flagship', status: 'dev', stackMini: 'Firebase · PWA',
+      description: 'The flagship of a larger ecosystem plan. A three-portal progressive web app — user banking app, admin console, and a separate developer portal — running on a dedicated Firebase project. Built with a global system on/off switch, push notifications, and continent/country-level user organization.',
+      tags: ['Firebase', 'PWA', 'Multi-portal', 'Push notifications', 'OTP flow'], url: ''
+    },
+    {
+      name: 'Tradex', subtitle: 'Marketplace platform', status: 'active', stackMini: 'Firebase · Wallet',
+      description: 'A recurring, long-running marketplace build carrying 54+ live listings. Sellers operate through an agent/team system with its own seller wallet, and every withdrawal request routes through admin-side approval before funds move.',
+      tags: ['Marketplace', 'Agent system', 'Seller wallet', 'Admin approvals'], url: ''
+    },
+    {
+      name: 'WaveMeet', subtitle: 'Real-time video calling', status: 'live', stackMini: 'Vercel · Firebase',
+      description: 'A video-calling platform running on Vercel and Firebase. Ships a custom background sound system — users can upload their own audio, route it through an OBS virtual camera, and control it from an in-call slide-up tray without leaving the meeting.',
+      tags: ['WebRTC-style calling', 'OBS routing', 'Google Auth'], url: ''
+    },
+    {
+      name: 'X Club', subtitle: 'Social + investment platform', status: 'active', stackMini: 'Flutterwave · Groq',
+      description: 'A social platform with a feed, direct messaging, and a built-in investment flow. Posting is partly automated through the Groq API, and checkout runs through Flutterwave with multi-currency support.',
+      tags: ['Feed & messaging', 'Groq AI posting', 'Multi-currency checkout', 'PWA'], url: ''
+    },
+    {
+      name: 'GoldVein Mining', subtitle: 'Group chat for gold sellers', status: 'deployed', stackMini: 'Single-file · RTDB',
+      description: 'A full real-time group chat system for a niche trading community — delivered as a single HTML file running on Firebase Realtime Database. Includes admin controls, broadcast mode, per-member permission tiers, and Cloudinary-backed image uploads.',
+      tags: ['Realtime Database', 'Broadcast mode', 'Permission tiers', 'Cloudinary'], url: ''
+    },
+    {
+      name: 'ToonCast', subtitle: 'Live avatar & voice changer', status: 'paused', stackMini: 'MediaPipe · Web Audio',
+      description: 'A face-driven cartoon avatar and voice-changer tool for live streaming, built on MediaPipe for facial tracking and the Web Audio API for real-time pitch shifting. Currently paused — avatar rendering quality fell short of the bar this log holds itself to.',
+      tags: ['MediaPipe', 'Web Audio API', 'Face tracking', 'R&D'], url: ''
+    }
+  ];
+
+  const escapeHtml = str => String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+
+  const projectStore = (() => {
+    const list = document.getElementById('logList');
+    const note = document.getElementById('logNote');
+    const count = document.getElementById('logCount');
+
+    const render = projects => {
+      count.textContent = String(projects.length).padStart(2, '0');
+      note.textContent = `${projects.length} case file${projects.length === 1 ? '' : 's'}. Not all of them succeeded on the first pass — the log stays honest either way.`;
+
+      list.innerHTML = projects.map((p, i) => `
+        <div class="log-entry">
+          <div class="log-head">
+            <span class="log-idx">${String(i + 1).padStart(2, '0')}</span>
+            <span class="log-name">${escapeHtml(p.name)}<small>${escapeHtml(p.subtitle)}</small></span>
+            <span class="status ${escapeHtml(p.status)}">${STATUS_LABELS[p.status] || 'ACTIVE'}</span>
+            <span class="stack-mini">${escapeHtml(p.stackMini)}</span>
+            <span class="chev"></span>
+          </div>
+          <div class="log-body">
+            <div class="log-body-inner">
+              <p>${escapeHtml(p.description)}</p>
+              <div class="log-tags">${(p.tags || []).map(t => `<span>${escapeHtml(t)}</span>`).join('')}</div>
+            </div>
+            ${p.url ? `<div class="log-body-inner" style="padding-top:0;"><a class="view-live" href="${escapeHtml(p.url)}" target="_blank" rel="noopener">VIEW LIVE →</a></div>` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('.log-entry').forEach(entry => {
+        const head = entry.querySelector('.log-head');
+        const body = entry.querySelector('.log-body');
+        head.addEventListener('click', () => {
+          const isOpen = entry.classList.contains('open');
+          list.querySelectorAll('.log-entry.open').forEach(open => {
+            if (open !== entry) {
+              open.classList.remove('open');
+              open.querySelector('.log-body').style.maxHeight = null;
+            }
+          });
+          entry.classList.toggle('open', !isOpen);
+          body.style.maxHeight = isOpen ? null : `${body.scrollHeight}px`;
+        });
+      });
+    };
+
+    const load = async () => {
+      if (!window.firebaseConfigured) { render(DEFAULT_PROJECTS); return; }
+      try {
+        const doc = await firebase.firestore().collection('config').doc('projects').get();
+        const data = doc.exists ? doc.data().list : null;
+        render(Array.isArray(data) && data.length ? data : DEFAULT_PROJECTS);
+      } catch (err) {
+        render(DEFAULT_PROJECTS);
+      }
+    };
+
+    load();
+    return { render, load };
+  })();
+
+  const terminalType = (() => {
+    const target = document.getElementById('typeLine');
+    const text = 'channel open — send a transmission below.';
+    const run = () => {
+      let i = 0;
+      const step = () => {
+        target.textContent = text.slice(0, i);
+        i += 1;
+        if (i <= text.length) {
+          setTimeout(step, 32);
+        } else {
+          target.classList.add('done');
+        }
+      };
+      step();
+    };
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          run();
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.5 });
+    observer.observe(document.querySelector('.terminal'));
+  })();
+
+})();
+</script>
+</body>
+</html>
