@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VICTOR // SYSTEMS INTERFACE</title>
+<title>V·SYS // MISSION LOG</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/style.css">
 </head>
-<body data-page="home">
+<body data-page="logs">
 
   <div id="boot">
     <div class="boot-mark">V.SYS // INITIALIZING INTERFACE</div>
@@ -49,34 +49,16 @@
   </nav>
 
   <main>
-    <section id="hero">
-      <div class="hero-grid">
+    <section id="projects">
+      <div class="section-head">
         <div>
-          <div class="eyebrow">UNIT PROFILE // 001</div>
-          <h1 class="hero-title"><span id="heroName">VICTOR</span><br><span class="accent" id="heroRole">FULL&#8209;STACK ENGINEER</span></h1>
-          <p class="hero-sub" id="heroBio">
-            I design and build complete web systems solo — <b>interface, backend, and payments</b> — from a flat file
-            up to a multi-portal production app. No agency, no team, no template. Every project on this log was
-            planned, built, and shipped end-to-end by one operator.
-          </p>
-          <div class="hero-cta">
-            <a href="logs.html" class="btn">VIEW MISSION LOGS</a>
-            <a href="contact.html" class="btn ghost">OPEN CHANNEL</a>
-          </div>
+          <div class="eyebrow">MISSION LOG // 003</div>
+          <h2 class="section-title">Deployed &amp; In Progress</h2>
         </div>
-        <div class="hero-readout">
-          <div class="id-photo">
-            <img id="heroPhoto" src="" alt="">
-            <div class="id-photo-fallback" id="heroPhotoFallback">NO IMAGE LINKED</div>
-          </div>
-          <div class="row"><span>OPERATOR</span><span>V. — SOLO BUILD</span></div>
-          <div class="row"><span>CORE STACK</span><span>JS / FIREBASE</span></div>
-          <div class="row ok"><span>PAYMENTS</span><span>FLUTTERWAVE</span></div>
-          <div class="row"><span>DEPLOY</span><span>VERCEL</span></div>
-          <div class="row"><span>ACTIVE LOGS</span><span>06</span></div>
-          <div class="row ok"><span>STATUS</span><span>BUILDING</span></div>
-        </div>
+        <div class="section-note" id="logNote">Case files, pulled live. Not all of them succeeded on the first pass — the log stays honest either way.</div>
       </div>
+
+      <div class="log-list" id="logList"></div>
     </section>
   </main>
 
@@ -89,6 +71,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="assets/firebase-config.js"></script>
-<script src="assets/profile.js"></script>
+<script src="assets/util.js"></script>
+<script src="assets/projects.js"></script>
 </body>
 </html>

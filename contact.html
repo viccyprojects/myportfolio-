@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V·SYS // COMMS TERMINAL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="contact">
+
+  <div id="boot">
+    <div class="boot-mark">V.SYS // INITIALIZING INTERFACE</div>
+    <div class="boot-bar"><span></span></div>
+    <div class="boot-log" id="bootLog">loading kernel…</div>
+  </div>
+
+  <div class="grid-field"></div>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="reticle" id="reticle">
+    <svg viewBox="0 0 34 34">
+      <circle class="ring" cx="17" cy="17" r="12" fill="none" stroke-width="1"/>
+      <line class="cross" x1="17" y1="0" x2="17" y2="8" stroke-width="1"/>
+      <line class="cross" x1="17" y1="26" x2="17" y2="34" stroke-width="1"/>
+      <line class="cross" x1="0" y1="17" x2="8" y2="17" stroke-width="1"/>
+      <line class="cross" x1="26" y1="17" x2="34" y2="17" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <div class="frame"><div class="c2"></div><div class="c3"></div></div>
+
+  <div class="brand-mark"><a href="index.html">V<b>·</b>SYS</a></div>
+
+  <div class="topbar">
+    <div>SESSION <span class="id">#VX-2026</span></div>
+    <div class="clock" id="clock">00:00:00</div>
+    <div>LAGOS, NG <span class="dot">●</span> ONLINE</div>
+  </div>
+
+  <nav class="hud-nav" id="hudNav">
+    <div class="rail"></div>
+    <a class="item" data-target="home" href="index.html"><span class="label">HOME</span><span class="node"></span></a>
+    <a class="item" data-target="system" href="system.html"><span class="label">SYSTEM</span><span class="node"></span></a>
+    <a class="item" data-target="logs" href="logs.html"><span class="label">LOGS</span><span class="node"></span></a>
+    <a class="item" data-target="collab" href="collab.html"><span class="label">COLLAB</span><span class="node"></span></a>
+    <a class="item" data-target="contact" href="contact.html"><span class="label">COMMS</span><span class="node"></span></a>
+  </nav>
+
+  <main>
+    <section id="contact">
+      <div class="eyebrow">COMMS TERMINAL // 005</div>
+      <h2 class="section-title" style="margin-bottom:36px;">Open a Channel</h2>
+
+      <div class="panel terminal">
+        <div class="head"><span>secure_channel.sh</span><span>ENCRYPTED</span></div>
+        <div class="term-line"><span class="prompt">&gt;</span><span class="typed" id="typeLine"></span></div>
+
+        <div class="contact-primary">
+          <div class="addr-block">
+            <span class="addr-label">EMAIL</span>
+            <span class="addr-value">viccylay30@gmail.com</span>
+          </div>
+          <a class="btn" href="mailto:viccylay30@gmail.com">CONTACT DIRECTLY</a>
+        </div>
+
+        <a class="icon-btn" href="https://www.linkedin.com/in/victor-adedolapo-b60767280?utm_source=share_via&amp;utm_content=profile&amp;utm_medium=member_ios" target="_blank" rel="noopener" aria-label="LinkedIn profile">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.02-3.03-1.85-3.03-1.86 0-2.14 1.45-2.14 2.94v5.66H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.26 2.37 4.26 5.45v6.29zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56v11.45z"/></svg>
+          <span>LINKEDIN PROFILE</span>
+        </a>
+
+        <button type="button" class="icon-btn" data-chat-open data-chat-topic="contact" style="margin-top:14px; border-style:dashed;">
+          <span>OR SEND A QUICK MESSAGE INSTEAD →</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© 2026 VICTOR. BUILT FROM SCRATCH.</span>
+    <span>NO FRAMEWORK · NO TEMPLATE</span>
+  </footer>
+
+  <div class="modal-backdrop" id="chatBackdrop">
+    <div class="modal panel chat-modal">
+      <button type="button" class="modal-close" id="chatClose" aria-label="Close">&times;</button>
+
+      <div class="modal-step" id="chatStepIdentify">
+        <div class="eyebrow" style="margin-bottom:16px;">IDENTIFY YOURSELF</div>
+        <h3 class="modal-title">Pick a username</h3>
+        <p class="chat-hint">This links the conversation to you — there's no password, so use the same one on any device to pick up where you left off.</p>
+        <input type="text" id="chatUsername" class="modal-input" placeholder="USERNAME" autocomplete="off">
+        <button type="button" class="btn" id="chatUsernameNext" style="margin-top:20px;">CONTINUE</button>
+        <div class="modal-err" id="chatIdentifyErr"></div>
+      </div>
+
+      <div class="modal-step" id="chatStepThread" style="display:none;">
+        <div class="chat-head">
+          <span id="chatThreadUser">@username</span>
+          <button type="button" class="chat-switch" id="chatSwitchUser">NOT YOU?</button>
+        </div>
+        <div class="chat-log" id="chatLog"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chatText" class="modal-input" placeholder="TYPE A MESSAGE" autocomplete="off">
+          <button type="button" class="btn" id="chatSendBtn">SEND</button>
+        </div>
+        <div class="modal-err" id="chatThreadErr"></div>
+      </div>
+    </div>
+  </div>
+
+<script src="assets/hud.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="assets/firebase-config.js"></script>
+<script src="assets/util.js"></script>
+<script src="assets/chat.js"></script>
+<script>
+  const typeTarget = document.getElementById('typeLine');
+  const typeText = 'channel open — send a transmission below.';
+  let ti = 0;
+  const typeStep = () => {
+    typeTarget.textContent = typeText.slice(0, ti);
+    ti += 1;
+    if (ti <= typeText.length) {
+      setTimeout(typeStep, 32);
+    } else {
+      typeTarget.classList.add('done');
+    }
+  };
+  typeStep();
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V·SYS // CAPABILITY DIAGNOSTICS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-page="system">
+
+  <div id="boot">
+    <div class="boot-mark">V.SYS // INITIALIZING INTERFACE</div>
+    <div class="boot-bar"><span></span></div>
+    <div class="boot-log" id="bootLog">loading kernel…</div>
+  </div>
+
+  <div class="grid-field"></div>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="reticle" id="reticle">
+    <svg viewBox="0 0 34 34">
+      <circle class="ring" cx="17" cy="17" r="12" fill="none" stroke-width="1"/>
+      <line class="cross" x1="17" y1="0" x2="17" y2="8" stroke-width="1"/>
+      <line class="cross" x1="17" y1="26" x2="17" y2="34" stroke-width="1"/>
+      <line class="cross" x1="0" y1="17" x2="8" y2="17" stroke-width="1"/>
+      <line class="cross" x1="26" y1="17" x2="34" y2="17" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <div class="frame"><div class="c2"></div><div class="c3"></div></div>
+
+  <div class="brand-mark"><a href="index.html">V<b>·</b>SYS</a></div>
+
+  <div class="topbar">
+    <div>SESSION <span class="id">#VX-2026</span></div>
+    <div class="clock" id="clock">00:00:00</div>
+    <div>LAGOS, NG <span class="dot">●</span> ONLINE</div>
+  </div>
+
+  <nav class="hud-nav" id="hudNav">
+    <div class="rail"></div>
+    <a class="item" data-target="home" href="index.html"><span class="label">HOME</span><span class="node"></span></a>
+    <a class="item" data-target="system" href="system.html"><span class="label">SYSTEM</span><span class="node"></span></a>
+    <a class="item" data-target="logs" href="logs.html"><span class="label">LOGS</span><span class="node"></span></a>
+    <a class="item" data-target="collab" href="collab.html"><span class="label">COLLAB</span><span class="node"></span></a>
+    <a class="item" data-target="contact" href="contact.html"><span class="label">COMMS</span><span class="node"></span></a>
+  </nav>
+
+  <main>
+    <section id="skills">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">SYSTEM READOUT // 002</div>
+          <h2 class="section-title">Capability Diagnostics</h2>
+        </div>
+        <div class="section-note">Self-reported proficiency across the stack I use to take a project from empty file to deployed product.</div>
+      </div>
+
+      <div class="diag-grid">
+        <div class="panel diag" data-pct="96">
+          <div class="top"><span class="name">FRONTEND — HTML / CSS / JS</span><span class="pct">96%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Vanilla-first. No framework dependency unless the project genuinely needs one.</div>
+        </div>
+        <div class="panel diag" data-pct="92">
+          <div class="top"><span class="name">FIREBASE — AUTH / RTDB / FIRESTORE</span><span class="pct">92%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Primary backend across every shipped project — auth flows, real-time data, security rules.</div>
+        </div>
+        <div class="panel diag" data-pct="88">
+          <div class="top"><span class="name">PAYMENTS — FLUTTERWAVE</span><span class="pct">88%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Multi-currency checkout, wallets, and withdrawal-approval flows.</div>
+        </div>
+        <div class="panel diag" data-pct="85">
+          <div class="top"><span class="name">MEDIA — CLOUDINARY</span><span class="pct">85%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Upload pipelines, transformation, and delivery for image-heavy apps.</div>
+        </div>
+        <div class="panel diag" data-pct="90">
+          <div class="top"><span class="name">DEPLOYMENT — VERCEL</span><span class="pct">90%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Ship fast, iterate faster. Every live project on this page runs on it.</div>
+        </div>
+        <div class="panel diag" data-pct="68">
+          <div class="top"><span class="name">R&amp;D — MEDIAPIPE / WEB AUDIO</span><span class="pct">68%</span></div>
+          <div class="track"><div class="fill"></div></div>
+          <div class="detail">Face-tracking avatars and real-time voice manipulation. Actively in progress.</div>
+        </div>
+      </div>
+
+      <div class="stack-strip">
+        <span>HTML5</span><span>CSS3</span><span>JavaScript</span><span>Firebase Auth</span>
+        <span>Realtime Database</span><span>Firestore</span><span>Cloudinary</span><span>Flutterwave</span>
+        <span>Vercel</span><span>MediaPipe</span><span>Web Audio API</span><span>Groq API</span>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© 2026 VICTOR. BUILT FROM SCRATCH.</span>
+    <span>NO FRAMEWORK · NO TEMPLATE</span>
+  </footer>
+
+<script src="assets/hud.js"></script>
+<script>
+  document.querySelectorAll('.diag').forEach(d => {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.querySelector('.fill').style.width = `${entry.target.dataset.pct}%`;
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.4 });
+    observer.observe(d);
+  });
+</script>
+</body>
+</html>
