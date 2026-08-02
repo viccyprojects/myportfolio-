@@ -67,11 +67,45 @@
     <span>NO FRAMEWORK · NO TEMPLATE</span>
   </footer>
 
+  <button type="button" class="chat-fab" data-chat-open data-chat-topic="general" aria-label="Chat with V·SYS">
+    <span aria-hidden="true">💬</span>
+    <span class="fab-tip">CHAT WITH V·SYS</span>
+  </button>
+
+  <div class="modal-backdrop" id="chatBackdrop">
+    <div class="modal panel chat-modal">
+      <button type="button" class="modal-close" id="chatClose" aria-label="Close">&times;</button>
+
+      <div class="modal-step" id="chatStepIdentify">
+        <div class="eyebrow" style="margin-bottom:16px;">IDENTIFY YOURSELF</div>
+        <h3 class="modal-title">Pick a username</h3>
+        <p class="chat-hint">This links the conversation to you — there's no password, so use the same one on any device to pick up where you left off.</p>
+        <input type="text" id="chatUsername" class="modal-input" placeholder="USERNAME" autocomplete="off">
+        <button type="button" class="btn" id="chatUsernameNext" style="margin-top:20px;">CONTINUE</button>
+        <div class="modal-err" id="chatIdentifyErr"></div>
+      </div>
+
+      <div class="modal-step" id="chatStepThread" style="display:none;">
+        <div class="chat-head">
+          <span id="chatThreadUser">@username</span>
+          <button type="button" class="chat-switch" id="chatSwitchUser">NOT YOU?</button>
+        </div>
+        <div class="chat-log" id="chatLog"></div>
+        <div class="chat-input-row">
+          <input type="text" id="chatText" class="modal-input" placeholder="TYPE A MESSAGE" autocomplete="off">
+          <button type="button" class="btn" id="chatSendBtn">SEND</button>
+        </div>
+        <div class="modal-err" id="chatThreadErr"></div>
+      </div>
+    </div>
+  </div>
+
 <script src="assets/hud.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="assets/firebase-config.js"></script>
 <script src="assets/util.js"></script>
 <script src="assets/projects.js"></script>
+<script src="assets/chat.js"></script>
 </body>
 </html>

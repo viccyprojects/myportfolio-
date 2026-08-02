@@ -24,7 +24,7 @@ assets/
   firebase-config.js  your Firebase web config
   profile.js          loads the editable profile onto index.html
   projects.js         loads project cards onto logs.html
-  chat.js             the username-linked chat widget (collab.html, contact.html)
+  chat.js             the username-linked chat widget (every page, via the floating button)
 ```
 
 ## Deploying
@@ -32,6 +32,16 @@ assets/
 Upload this whole folder as-is. `index.html` is the homepage; every other
 page is a real, separate URL (`/system.html`, `/logs.html`, etc.), linked
 from the nav on the right.
+
+## The floating chat button
+
+Every page now has a pulsing 💬 button fixed in the bottom-right corner
+(bottom-center-ish on mobile, above the nav bar) — that's the same
+username-linked chat widget from Collab and Contact, just made available
+site-wide so it isn't only discoverable on two of the five pages. To
+change the icon, open `assets/../<page>.html` and swap the emoji
+character inside `<span aria-hidden="true">💬</span>` — it's plain text,
+no build step needed.
 
 ## Firebase
 
